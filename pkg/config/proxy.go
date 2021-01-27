@@ -174,7 +174,8 @@ type HTTPSProxyConf struct {
 // TCP
 type TCPProxyConf struct {
 	BaseProxyConf `ini:",extends" json:"inline"`
-	RemotePort    int `ini:"remote_port" json:"remote_port"`
+	RemoteIP      string `ini:"remote_ip" json:"remote_ip"`
+	RemotePort    int    `ini:"remote_port" json:"remote_port"`
 }
 
 // TCPMux
@@ -515,6 +516,11 @@ func (cfg *TCPProxyConf) Compare(cmp ProxyConf) bool {
 	}
 
 	// Add custom logic equal if exists.
+	if cfg.RemoteIP != cmpConf.RemoteIP {
+		return false
+	}
+
+	// Add custom logic equal if exists.
 	if cfg.RemotePort != cmpConf.RemotePort {
 		return false
 	}
@@ -527,6 +533,9 @@ func (cfg *TCPProxyConf) UnmarshalFromMsg(pMsg *msg.NewProxy) {
 
 	// Add custom logic unmarshal if exists
 	cfg.RemotePort = pMsg.RemotePort
+
+	// Add custom logic unmarshal if exists
+	cfg.RemoteIP = pMsg.RemoteIP
 }
 
 func (cfg *TCPProxyConf) UnmarshalFromIni(prefix string, name string, section *ini.Section) error {
@@ -542,6 +551,9 @@ func (cfg *TCPProxyConf) UnmarshalFromIni(prefix string, name string, section *i
 
 func (cfg *TCPProxyConf) MarshalToMsg(pMsg *msg.NewProxy) {
 	cfg.BaseProxyConf.marshalToMsg(pMsg)
+
+	// Add custom logic marshal if exists
+	pMsg.RemoteIP = cfg.RemoteIP
 
 	// Add custom logic marshal if exists
 	pMsg.RemotePort = cfg.RemotePort
